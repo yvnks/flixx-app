@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
       break;
     case "/shows.html":
       console.log("Shows");
+      renderPopularTVShows();
       break;
     case "/search.html":
       console.log("Search");
@@ -63,7 +64,6 @@ async function renderPopularMovies() {
     `;
   });
   document.querySelector("#popular-movies").innerHTML = html;
-  console.log(html);
 }
 
 /**
@@ -71,7 +71,7 @@ async function renderPopularMovies() {
  * from the API.
  */
 async function fetchDataFromAPI(endpoint) {
-  showSpinner();
+    showSpinner();
   const API_URL = "https://api.themoviedb.org/3/";
   const API_KEY = "bc2f421c810659588237b20b4fce4f00";
 
@@ -80,13 +80,47 @@ async function fetchDataFromAPI(endpoint) {
   );
 
   const data = response.json();
-  hideSpinner();
+    hideSpinner();
   return data;
 }
 
 function showSpinner() {
-  document.querySelector(".js-spinner").classList.add("show");
+  document.querySelector(".spinner").classList.add("show");
 }
 function hideSpinner() {
-  document.querySelector(".js-spinner").classList.remove("show");
+  document.querySelector(".spinner").classList.remove("show");
+}
+
+/**
+ * @this function
+ */
+async function renderPopularTVShows() {
+  let html = "";
+  const { results } = await fetchDataFromAPI("tv/popular");
+  console.log(results);
+
+  results.forEach((show) => {
+    html += `
+    <div class="card">
+          <a href="movie-details.html?id=${show.id}">
+            ${
+              show.poster_path
+                ? `<img src="https://tmdb.org/t/p/w500${show.poster_path}" 
+                    class="card-img-top" alt="${show.name}"
+                 />`
+                : `<img src="images/no-image.jpg" 
+                    class="card-img-top" alt="${show.name}"
+                  />`
+            }
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">${show.name}</h5>
+            <p class="card-text">
+              <small class="text-muted">Release: ${show.first_air_date}</small>
+            </p>
+          </div>
+    </div>
+    `;
+  });
+  document.querySelector("#popular-shows").innerHTML = html;
 }
