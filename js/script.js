@@ -13,8 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Shows");
       renderPopularTVShows();
       break;
+    case "/movie-details.html":
+      displayMovieDetails();
+      break;
     case "/search.html":
       console.log("Search");
+      break;
     case "/tv-details.html":
       console.log("tv details");
       break;
@@ -71,7 +75,7 @@ async function renderPopularMovies() {
  * from the API.
  */
 async function fetchDataFromAPI(endpoint) {
-    showSpinner();
+  showSpinner();
   const API_URL = "https://api.themoviedb.org/3/";
   const API_KEY = "bc2f421c810659588237b20b4fce4f00";
 
@@ -79,8 +83,8 @@ async function fetchDataFromAPI(endpoint) {
     `${API_URL}${endpoint}?api_key=${API_KEY}&language=en-US`,
   );
 
-  const data = response.json();
-    hideSpinner();
+  const data = await response.json();
+  hideSpinner();
   return data;
 }
 
@@ -123,4 +127,82 @@ async function renderPopularTVShows() {
     `;
   });
   document.querySelector("#popular-shows").innerHTML = html;
+}
+
+async function displayMovieDetails() {
+  const movieId = window.location.search.split("=")[1];
+  console.log(movieId);
+
+  const movie = await fetchDataFromAPI(`movie/${movieId}`);
+
+  displayBackgroundImage("movie", movie.backdrop_path);
+  const html = `
+  <div class="details-top">
+          <div>
+            ${
+              movie.poster_path
+                ? `<img src="https://tmdb.org/t/p/w500${movie.poster_path}" 
+                    class="card-img-top" alt="${movie.title}"
+                 />`
+                : `<img src="images/no-image.jpg" 
+                    class="card-img-top" alt="Movie Title"
+                  />`
+            }
+          </div>
+          <div>
+            <h2>${movie.title}</h2>
+            <p>
+              <i class="fas fa-star text-primary"></i>
+              ${movie.vote_average.toFixed(1)} / 10
+            </p>
+            <p class="text-muted">Release Date: ${movie.release_date}</p>
+            <p>
+              ${movie.overview}
+            </p>
+            <h5>Genres</h5>
+            <ul class="list-group">
+              ${movie.genres.map((genre) => `<li>${genre.name}</li>`).join("")}
+            </ul>
+            <a href="#" target="_blank" class="btn">Visit Movie Homepage</a>
+          </div>
+        </div>
+        <div class="details-bottom">
+          <h2>Movie Info</h2>
+          <ul>
+            <li><span class="text-secondary">Budget:</span> $${formatCurrency(movie.budget)}</li>
+            <li><span class="text-secondary">Revenue:</span> $${formatCurrency(movie.revenue)}</li>
+            <li><span class="text-secondary">Runtime:</span> ${movie.runtime} minutes</li>
+            <li><span class="text-secondary">Status:</span> ${movie.status}</li>
+          </ul>
+          <h4>Production Companies</h4>
+          <div class="list-group">
+          ${movie.production_companies.map((company) => `<span>${company.name}</span>`).join(", ")}
+          </div>
+        </div>
+  `;
+  document.querySelector("#movie-details").innerHTML = html;
+}
+
+function displayBackgroundImage(type, backdropImgPath) {
+  const overlayDiv = document.createElement("div");
+
+  if (!backdropImgPath) return;
+
+  overlayDiv.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${backdropImgPath})`;
+  overlayDiv.style.backgroundSize = "cover";
+  overlayDiv.style.backgroundPosition = "center";
+  overlayDiv.style.backgroundRepeat = "no-repeat";
+  overlayDiv.style.height = "100vh";
+  overlayDiv.style.width = "100vw";
+  overlayDiv.style.position = "absolute";
+  overlayDiv.style.top = "0";
+  overlayDiv.style.left = "0";
+  overlayDiv.style.zIndex = "-1";
+  overlayDiv.style.opacity = "0.1";
+
+  document.body.appendChild(overlayDiv);
+}
+
+function formatCurrency(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
