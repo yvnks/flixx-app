@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     case "/":
     case "/index.html":
       console.log("Home");
+      displaySlider();
       renderPopularMovies();
       break;
     case "/shows.html":
@@ -43,7 +44,6 @@ function hightlightActiveLink() {
 async function renderPopularMovies() {
   let html = "";
   const { results } = await fetchDataFromAPI("movie/popular");
-  console.log(results);
 
   results.forEach((movie) => {
     html += `
@@ -246,7 +246,7 @@ async function displayShowDetails() {
           <ul>
             <li><span class="text-secondary">Seasons:</span> ${show.number_of_seasons}</li>
             <li><span class="text-secondary">Episodes:</span> ${show.number_of_episodes}</li>
-            <li><span class="text-secondary">Last Episode To Air:</span> ${show.last_episode_to_air['name']} minutes</li>
+            <li><span class="text-secondary">Last Episode To Air:</span> ${show.last_episode_to_air["name"]} minutes</li>
             <li><span class="text-secondary">Status:</span> ${show.status}</li>
           </ul>
           <h4>Production Companies</h4>
@@ -260,4 +260,22 @@ async function displayShowDetails() {
 
 function formatCurrency(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+async function displaySlider() {
+  const { results } = await fetchDataFromAPI("movie/now_playing");
+  let html = "";
+
+  results.forEach((movie) => {
+    html += `
+          <div class="swiper-slide">
+            <a href="movie-details.html?id=1">
+              <img src="./images/no-image.jpg" alt="Movie Title" />
+            </a>
+            <h4 class="swiper-rating">
+              <i class="fas fa-star text-secondary"></i> 8 / 10
+            </h4>
+          </div> 
+    `;
+  });
 }
