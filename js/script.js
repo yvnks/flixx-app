@@ -264,18 +264,45 @@ function formatCurrency(num) {
 
 async function displaySlider() {
   const { results } = await fetchDataFromAPI("movie/now_playing");
+  console.log(results);
   let html = "";
 
   results.forEach((movie) => {
     html += `
           <div class="swiper-slide">
-            <a href="movie-details.html?id=1">
-              <img src="./images/no-image.jpg" alt="Movie Title" />
+            <a href="movie-details.html?id=${movie.id}">
+              <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
             </a>
             <h4 class="swiper-rating">
-              <i class="fas fa-star text-secondary"></i> 8 / 10
+              <i class="fas fa-star text-secondary"></i> ${movie.vote_average} / 10
             </h4>
           </div> 
     `;
+    document.querySelector(".swiper-wrapper").innerHTML = html;
+    initSwiper();
+  });
+}
+
+function initSwiper() {
+  const swiper = new Swiper(".swiper", {
+    slidesPerView: 1,
+    spaceBetween: 30,
+    freeMode: true,
+    loop: true,
+    autoPlay: {
+      delay: 4000,
+      disableOnInteraction: false,
+    },
+    breakpoints: {
+      500: {
+        slidesPerView: 2,
+      },
+      700: {
+        slidesPerView: 3,
+      },
+      1200: {
+        slidesPerView: 4,
+      },
+    },
   });
 }
